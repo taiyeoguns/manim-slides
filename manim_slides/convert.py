@@ -117,10 +117,7 @@ class Str(str):
 
     def __str__(self) -> str:
         """Ensures that the string is correctly quoted."""
-        if self in ["true", "false", "null"]:
-            return self
-        else:
-            return f"'{super().__str__()}'"
+        return self if self in ["true", "false", "null"] else f"'{super().__str__()}'"
 
 
 class StrEnum(Enum):
@@ -470,12 +467,12 @@ class PowerPoint(Converter):
         # From GitHub issue comment:
         # - https://github.com/scanny/python-pptx/issues/427#issuecomment-856724440
         def auto_play_media(
-            media: pptx.shapes.picture.Movie, loop: bool = False
-        ) -> None:
+                media: pptx.shapes.picture.Movie, loop: bool = False
+            ) -> None:
             el_id = xpath(media.element, ".//p:cNvPr")[0].attrib["id"]
             el_cnt = xpath(
                 media.element.getparent().getparent().getparent(),
-                './/p:timing//p:video//p:spTgt[@spid="%s"]' % el_id,
+                f'.//p:timing//p:video//p:spTgt[@spid="{el_id}"]',
             )[0]
             cond = xpath(el_cnt.getparent().getparent(), ".//p:cond")[0]
             cond.set("delay", "0")

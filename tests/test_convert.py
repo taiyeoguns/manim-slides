@@ -99,7 +99,7 @@ def test_quoted_enum(enum_type: EnumMeta) -> None:
         if enum in ["true", "false", "null"]:
             continue
 
-        expected = "'" + enum.value + "'"
+        expected = f"'{enum.value}'"
         got = str(enum)
 
         assert expected == got

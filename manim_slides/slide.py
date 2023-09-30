@@ -64,30 +64,24 @@ class Slide(Scene):  # type:ignore
     @property
     def __frame_height(self) -> float:
         """Returns the scene's frame height."""
-        if MANIMGL:
-            return self.frame_height  # type: ignore
-        else:
-            return config["frame_height"]  # type: ignore
+        return self.frame_height if MANIMGL else config["frame_height"]
 
     @property
     def __frame_width(self) -> float:
         """Returns the scene's frame width."""
-        if MANIMGL:
-            return self.frame_width  # type: ignore
-        else:
-            return config["frame_width"]  # type: ignore
+        return self.frame_width if MANIMGL else config["frame_width"]
 
     @property
     def __background_color(self) -> str:
         """Returns the scene's background color."""
         if MANIMGL:
             return self.camera_config["background_color"].hex  # type: ignore
-        else:
-            color = config["background_color"]
-            if hex_color := getattr(color, "hex", None):
-                return hex_color  # type: ignore
-            else:  # manim>=0.18, see https://github.com/ManimCommunity/manim/pull/3020
-                return color.to_hex()  # type: ignore
+        color = config["background_color"]
+        return (
+            hex_color
+            if (hex_color := getattr(color, "hex", None))
+            else color.to_hex()
+        )
 
     @property
     def __resolution(self) -> Tuple[int, int]:
@@ -596,14 +590,14 @@ class Slide(Scene):  # type:ignore
             [self.__frame_width, self.__frame_height, 0.0]
         )
 
-        animations = []
-
-        for mobject in future:
-            animations.append(FadeIn(mobject, shift=shift_amount, **fade_in_kwargs))
-
-        for mobject in current:
-            animations.append(FadeOut(mobject, shift=shift_amount, **fade_out_kwargs))
-
+        animations = [
+            FadeIn(mobject, shift=shift_amount, **fade_in_kwargs)
+            for mobject in future
+        ]
+        animations.extend(
+            FadeOut(mobject, shift=shift_amount, **fade_out_kwargs)
+            for mobject in current
+        )
         return AnimationGroup(*animations, **kwargs)
 
     def zoom(
@@ -659,14 +653,13 @@ class Slide(Scene):  # type:ignore
         if out:
             scale_in, scale_out = scale_out, scale_in
 
-        animations = []
-
-        for mobject in future:
-            animations.append(FadeIn(mobject, scale=scale_in, **fade_in_kwargs))
-
-        for mobject in current:
-            animations.append(FadeOut(mobject, scale=scale_out, **fade_out_kwargs))
-
+        animations = [
+            FadeIn(mobject, scale=scale_in, **fade_in_kwargs) for mobject in future
+        ]
+        animations.extend(
+            FadeOut(mobject, scale=scale_out, **fade_out_kwargs)
+            for mobject in current
+        )
         return AnimationGroup(*animations, **kwargs)
 
 

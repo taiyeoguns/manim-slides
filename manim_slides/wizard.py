@@ -26,9 +26,7 @@ from .resources import *  # noqa: F401, F403
 
 WINDOW_NAME: str = "Configuration Wizard"
 
-keymap = {}
-for key in Qt.Key:
-    keymap[key.value] = key.name.partition("_")[2]
+keymap = {key.value: key.name.partition("_")[2] for key in Qt.Key}
 
 
 class KeyInput(QDialog):  # type: ignore

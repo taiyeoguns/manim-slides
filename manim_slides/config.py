@@ -84,7 +84,7 @@ class Keys(BaseModel):  # type: ignore[misc]
         ids: Set[int] = set()
 
         for key in values.values():
-            if len(ids.intersection(key["ids"])) != 0:
+            if ids.intersection(key["ids"]):
                 raise ValueError(
                     "Two or more keys share a common key code: please make sure each key has distinct key codes"
                 )

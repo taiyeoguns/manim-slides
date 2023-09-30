@@ -16,15 +16,18 @@ def suppress_module_finder() -> Iterator[None]:
     meta_path = sys.meta_path
     try:
 
+
+
+
         class PathFinder(MetaPathFinder):
             @classmethod
             def find_spec(
-                cls,
-                fullname: str,
-                path: Optional[Sequence[str]],
-                target: Optional[ModuleType] = None,
-            ) -> Optional[ModuleSpec]:
-                if fullname in ["manim", "manimlib"]:
+                            cls,
+                            fullname: str,
+                            path: Optional[Sequence[str]],
+                            target: Optional[ModuleType] = None,
+                        ) -> Optional[ModuleSpec]:
+                if fullname in {"manim", "manimlib"}:
                     return None
 
                 for finder in meta_path:
@@ -33,6 +36,7 @@ def suppress_module_finder() -> Iterator[None]:
                         return spec
 
                 return None
+
 
         sys.meta_path = [PathFinder]
         yield

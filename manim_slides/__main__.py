@@ -27,41 +27,42 @@ def cli(notify_outdated_version: bool) -> None:
 
     If no command is specified, defaults to `present`.
     """
-    logger = make_logger()
     # Code below is mostly a copy from:
     # https://github.com/ManimCommunity/manim/blob/main/manim/cli/render/commands.py
-    if notify_outdated_version:
-        manim_info_url = "https://pypi.org/pypi/manim-slides/json"
-        warn_prompt = "Cannot check if latest release of Manim Slides is installed"
-        try:
-            req_info: requests.models.Response = requests.get(
-                manim_info_url, timeout=10
+    if not notify_outdated_version:
+        return
+    manim_info_url = "https://pypi.org/pypi/manim-slides/json"
+    warn_prompt = "Cannot check if latest release of Manim Slides is installed"
+    logger = make_logger()
+    try:
+        req_info: requests.models.Response = requests.get(
+            manim_info_url, timeout=10
+        )
+        req_info.raise_for_status()
+        stable = req_info.json()["info"]["version"]
+        if stable != __version__:
+            click.echo(
+                "You are using Manim Slides version "
+                + click.style(f"v{__version__}", fg="red")
+                + ", but version "
+                + click.style(f"v{stable}", fg="green")
+                + " is available."
             )
-            req_info.raise_for_status()
-            stable = req_info.json()["info"]["version"]
-            if stable != __version__:
-                click.echo(
-                    "You are using Manim Slides version "
-                    + click.style(f"v{__version__}", fg="red")
-                    + ", but version "
-                    + click.style(f"v{stable}", fg="green")
-                    + " is available."
-                )
-                click.echo(
-                    "You should consider upgrading via "
-                    + click.style("pip install -U manim-slides", fg="yellow")
-                )
-        except requests.exceptions.HTTPError:
-            logger.debug(f"HTTP Error: {warn_prompt}")
-        except requests.exceptions.ConnectionError:
-            logger.debug(f"Connection Error: {warn_prompt}")
-        except requests.exceptions.Timeout:
-            logger.debug(f"Timed Out: {warn_prompt}")
-        except json.JSONDecodeError:
-            logger.debug(warn_prompt)
-            logger.debug(f"Error decoding JSON from {manim_info_url}")
-        except Exception:
-            logger.debug(f"Something went wrong: {warn_prompt}")
+            click.echo(
+                "You should consider upgrading via "
+                + click.style("pip install -U manim-slides", fg="yellow")
+            )
+    except requests.exceptions.HTTPError:
+        logger.debug(f"HTTP Error: {warn_prompt}")
+    except requests.exceptions.ConnectionError:
+        logger.debug(f"Connection Error: {warn_prompt}")
+    except requests.exceptions.Timeout:
+        logger.debug(f"Timed Out: {warn_prompt}")
+    except json.JSONDecodeError:
+        logger.debug(warn_prompt)
+        logger.debug(f"Error decoding JSON from {manim_info_url}")
+    except Exception:
+        logger.debug(f"Something went wrong: {warn_prompt}")
 
 
 cli.add_command(convert)
