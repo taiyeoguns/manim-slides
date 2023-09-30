@@ -208,13 +208,15 @@ class ManimSlidesDirective(Directive):
             node = SkipManimNode()
             self.state.nested_parse(
                 StringList(
-                    [
-                        f"Placeholder block for ``{self.arguments[0]}``.",
-                        "",
-                        ".. code-block:: python",
-                        "",
-                    ]
-                    + ["    " + line for line in self.content]
+                    (
+                        [
+                            f"Placeholder block for ``{self.arguments[0]}``.",
+                            "",
+                            ".. code-block:: python",
+                            "",
+                        ]
+                        + [f"    {line}" for line in self.content]
+                    )
                 ),
                 self.content_offset,
                 node,
@@ -249,12 +251,7 @@ class ManimSlidesDirective(Directive):
             + self.options.get("ref_functions", [])
             + self.options.get("ref_methods", [])
         )
-        if ref_content:
-            ref_block = "References: " + " ".join(ref_content)
-
-        else:
-            ref_block = ""
-
+        ref_block = "References: " + " ".join(ref_content) if ref_content else ""
         if "quality" in self.options:
             quality = f'{self.options["quality"]}_quality'
         else:
@@ -276,7 +273,7 @@ class ManimSlidesDirective(Directive):
         source_block = [
             ".. code-block:: python",
             "",
-            *("    " + line for line in self.content),
+            *(f"    {line}" for line in self.content),
         ]
         source_block = "\n".join(source_block)
 
@@ -367,29 +364,30 @@ def _write_rendering_stats(scene_name, run_time, file_name):
 
 
 def _log_rendering_times(*args):
-    if rendering_times_file_path.exists():
-        with rendering_times_file_path.open() as file:
-            data = list(csv.reader(file))
-        if len(data) == 0:
-            sys.exit()
+    if not rendering_times_file_path.exists():
+        return
+    with rendering_times_file_path.open() as file:
+        data = list(csv.reader(file))
+    if not data:
+        sys.exit()
 
-        print("\nRendering Summary\n-----------------\n")
+    print("\nRendering Summary\n-----------------\n")
 
-        max_file_length = max(len(row[0]) for row in data)
-        for key, group in it.groupby(data, key=lambda row: row[0]):
-            key = key.ljust(max_file_length + 1, ".")
-            group = list(group)
-            if len(group) == 1:
-                row = group[0]
-                print(f"{key}{row[2].rjust(7, '.')}s {row[1]}")
-                continue
-            time_sum = sum(float(row[2]) for row in group)
-            print(
-                f"{key}{f'{time_sum:.3f}'.rjust(7, '.')}s  => {len(group)} EXAMPLES",
-            )
-            for row in group:
-                print(f"{' '*(max_file_length)} {row[2].rjust(7)}s {row[1]}")
-        print("")
+    max_file_length = max(len(row[0]) for row in data)
+    for key, group in it.groupby(data, key=lambda row: row[0]):
+        key = key.ljust(max_file_length + 1, ".")
+        group = list(group)
+        if len(group) == 1:
+            row = group[0]
+            print(f"{key}{row[2].rjust(7, '.')}s {row[1]}")
+            continue
+        time_sum = sum(float(row[2]) for row in group)
+        print(
+            f"{key}{f'{time_sum:.3f}'.rjust(7, '.')}s  => {len(group)} EXAMPLES",
+        )
+        for row in group:
+            print(f"{' '*(max_file_length)} {row[2].rjust(7)}s {row[1]}")
+    print("")
 
 
 def _delete_rendering_times(*args):
@@ -409,8 +407,7 @@ def setup(app):
     app.connect("builder-inited", _delete_rendering_times)
     app.connect("build-finished", _log_rendering_times)
 
-    metadata = {"parallel_read_safe": False, "parallel_write_safe": True}
-    return metadata
+    return {"parallel_read_safe": False, "parallel_write_safe": True}
 
 
 TEMPLATE = r"""

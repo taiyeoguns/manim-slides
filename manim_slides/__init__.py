@@ -8,7 +8,7 @@ from .__version__ import __version__
 
 class module(ModuleType):
     def __getattr__(self, name: str) -> Any:
-        if name == "Slide" or name == "ThreeDSlide":
+        if name in {"Slide", "ThreeDSlide"}:
             module = __import__(
                 "manim_slides.slide", None, None, ["Slide", "ThreeDSlide"]
             )

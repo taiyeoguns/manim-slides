@@ -72,7 +72,7 @@ def prompt_for_scenes(folder: Path) -> List[str]:
 
         return [scene_choices[i] for i in indices]
 
-    if len(scene_choices) == 0:
+    if not scene_choices:
         raise click.UsageError(
             "No scenes were found, are you in the correct directory?"
         )
@@ -90,7 +90,7 @@ def get_scenes_presentation_config(
 ) -> List[PresentationConfig]:
     """Returns a list of presentation configurations based on the user input."""
 
-    if len(scenes) == 0:
+    if not scenes:
         scenes = prompt_for_scenes(folder)
 
     presentation_configs = []
@@ -115,17 +115,16 @@ def start_at_callback(
         return (None, None)
 
     def str_to_int_or_none(value: str) -> Optional[int]:
-        if value.lower().strip() == "":
+        if not value.lower().strip():
             return None
-        else:
-            try:
-                return int(value)
-            except ValueError:
-                raise click.BadParameter(
-                    f"start index can only be an integer or an empty string, not `{value}`",
-                    ctx=ctx,
-                    param=param,
-                )
+        try:
+            return int(value)
+        except ValueError:
+            raise click.BadParameter(
+                f"start index can only be an integer or an empty string, not `{value}`",
+                ctx=ctx,
+                param=param,
+            )
 
     values_tuple = values.split(",")
     n_values = len(values_tuple)

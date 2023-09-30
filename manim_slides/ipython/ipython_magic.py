@@ -151,11 +151,7 @@ class ManimSlidesMagic(Magics):  # type: ignore
         split_args = line.split("--manim-slides", 2)
         manim_args = split_args[0].split()
 
-        if len(split_args) == 2:
-            manim_slides_args = split_args[1].split()
-        else:
-            manim_slides_args = []
-
+        manim_slides_args = split_args[1].split() if len(split_args) == 2 else []
         args = manim_args
         if not len(args) or "-h" in args or "--help" in args or "--version" in args:
             main(args, standalone_mode=False, prog_name="manim")
@@ -197,7 +193,6 @@ class ManimSlidesMagic(Magics):  # type: ignore
 
             if local_path in self.rendered_files:
                 self.rendered_files[local_path].unlink()
-                pass
             self.rendered_files[local_path] = tmpfile
             tmpfile.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy(local_path, tmpfile)

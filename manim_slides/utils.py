@@ -53,7 +53,7 @@ def merge_basenames(files: List[Path]) -> Path:
     dirname: Path = files[0].parent
     ext = files[0].suffix
 
-    basenames = list(file.stem for file in files)
+    basenames = [file.stem for file in files]
 
     basenames_str = ",".join(f"{len(b)}:{b}" for b in basenames)
 
